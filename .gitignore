@@ -22,3 +22,4 @@ go.work
 front
 .env
 run.sh
+run.ps1
