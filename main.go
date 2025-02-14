@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -33,25 +34,29 @@ func main() {
 	}))
 
 	r.POST("/problems", func(c *gin.Context) {
-		// Parse form data
 		title := c.PostForm("title")
 		description := c.PostForm("description")
 		if title == "" || description == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Title and description are required"})
 			return
 		}
-
-		// Create a new problem
-		problem := models.Problem{
-			ID:          uuid.New().String(),
-			Title:       title,
-			Description: description,
+	
+		var problem models.Problem
+		problem.ID = uuid.New().String()
+		problem.Title = title
+		problem.Description = description
+	
+		_, err := config.DB.Exec(context.Background(),
+			"INSERT INTO problems (id, title, description) VALUES ($1, $2, $3)",
+			problem.ID, problem.Title, problem.Description,
+		)
+	
+		if err != nil {
+			log.Println("Database insert error:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save problem"})
+			return
 		}
-
-		// Add the problem to the in-memory list
-		problems = append(problems, problem)
-
-		// Respond with the created problem
+	
 		c.JSON(http.StatusOK, problem)
 	})
 
