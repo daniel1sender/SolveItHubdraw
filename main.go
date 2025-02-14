@@ -1,29 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/daniel1sender/SolveItHub/config"
 	"github.com/daniel1sender/SolveItHub/models"
 	"github.com/daniel1sender/SolveItHub/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
-func init() {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
-}
-
 func main() {
+
+	config.ConnectDB()
+	defer config.CloseDB()
 
 	var problems []models.Problem
 
@@ -36,12 +32,12 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"https://solve-it-hub-front.vercel.app/"}, // Your frontend's URL
-        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowOrigins:     []string{"https://solve-it-hub-front.vercel.app/"}, // Your frontend's URL
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: true,
-    }))
+		AllowCredentials: true,
+	}))
 
 	// Endpoint to upload a file
 	r.POST("/upload", func(c *gin.Context) {
@@ -158,6 +154,11 @@ func main() {
 		}
 	})
 
-	// Start the server
-	log.Fatal(r.Run(":8080"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Println("Server running on port:", port)
+	log.Fatal(r.Run(":" + port))
 }
