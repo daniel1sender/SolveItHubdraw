@@ -36,9 +36,10 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://127.0.0.1:5500"}, // Your frontend's URL
+        AllowOrigins:     []string{"https://solve-it-hub-front.vercel.app/"}, // Your frontend's URL
         AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
         AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
         AllowCredentials: true,
     }))
 
