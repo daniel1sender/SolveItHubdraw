@@ -14,12 +14,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var problems []models.Problem
+
 func main() {
 
 	config.ConnectDB()
 	defer config.CloseDB()
-
-	var problems []models.Problem
 
 	// Initialize Gin router
 	r := gin.Default()
